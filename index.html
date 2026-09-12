@@ -1143,28 +1143,6 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       margin-bottom: 1.8rem;
     }
 
-    /* Print styles */
-    @media print {
-      .top-nav, .btn-action-row, .quiz-controls, .slider-range, .table-tools {
-        display: none !important;
-      }
-      .norm-details, .arg-body, .recom-content {
-        display: block !important;
-      }
-      body {
-        font-size: 11pt;
-        color: #000;
-        background: #fff;
-      }
-      .hero-banner {
-        background: #fff !important;
-        color: #000 !important;
-        border-bottom: 2px solid #000;
-      }
-      .hero-title, .hero-subtitle, .author-highlight {
-        color: #000 !important;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1182,7 +1160,6 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
         <li><a href="#fluxo-decisorio" class="nav-link">Fluxo Decisório</a></li>
         <li><a href="#recomendacoes" class="nav-link">Recomendações</a></li>
         <li><a href="#citacao" class="nav-link">Citação</a></li>
-        <li><button onclick="window.print()" class="btn-secondary" style="padding:0.35rem 0.65rem; font-size:0.75rem;" title="Imprimir / Salvar em PDF">Imprimir / PDF</button></li>
       </ul>
     </div>
   </nav>
@@ -1907,7 +1884,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
           </button>
         </div>
 
-        <div id="citation-content" class="citation-text">SILVA, Andréa Soares Rocha da. Oferta de cursos de graduação na modalidade EaD na área da Saúde: posicionamento normativo e dos conselhos de área. [Infográfico interativo]. Fortaleza: Universidade Federal do Ceará, 2026. Disponível em: &lt;URL do infográfico&gt;. Acesso em: 12 set. 2026.</div>
+        <div id="citation-content" class="citation-text">SILVA, Andréa Soares Rocha da. Oferta de cursos de graduação na modalidade EaD na área da Saúde: posicionamento normativo e dos conselhos de área. [Infográfico interativo]. Fortaleza: Universidade Federal do Ceará, 2026. Disponível em: https://andreagets.github.io/Graduacao-em-Saude-EaD-Infografico-Interativo/. Acesso em: 12 set. 2026.</div>
 
         <div class="sources-list">
           <strong>Material didático elaborado com fundamentação técnica e jurídica em:</strong>

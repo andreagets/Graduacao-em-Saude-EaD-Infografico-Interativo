@@ -538,12 +538,12 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
     }
     .progress-bar-track {
       background: #e2e8f0;
-      height: 34px;
+      height: 36px;
       border-radius: 999px;
       display: flex;
-      overflow: hidden;
       margin: 1rem 0 0.5rem;
       position: relative;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
     }
     .progress-segment-presential {
       width: 70%;
@@ -555,7 +555,17 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       font-size: 0.8rem;
       font-weight: 700;
       white-space: nowrap;
-      transition: width 0.4s ease;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      border-radius: 999px 0 0 999px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .progress-segment-presential:hover, .progress-segment-presential:focus-visible {
+      filter: brightness(1.1);
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      z-index: 2;
     }
     .progress-segment-ead {
       width: 30%;
@@ -568,23 +578,17 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       font-weight: 800;
       white-space: nowrap;
       position: relative;
-      cursor: help;
-      transition: width 0.4s ease;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border-radius: 0 999px 999px 0;
+      user-select: none;
+      touch-action: manipulation;
     }
-    .progress-segment-ead:hover::after {
-      content: "Máximo de 30% a distância em cursos presenciais (prevista no PPC e articulada às DCN)";
-      position: absolute;
-      bottom: 40px;
-      right: 0;
-      background: #0f172a;
-      color: #ffffff;
-      font-size: 0.75rem;
-      padding: 0.4rem 0.7rem;
-      border-radius: 4px;
-      width: 260px;
-      line-height: 1.35;
-      z-index: 10;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    .progress-segment-ead:hover, .progress-segment-ead:focus-visible {
+      filter: brightness(1.08);
+      outline: 2px solid #0284c7;
+      outline-offset: 2px;
+      z-index: 2;
     }
     .limit-legend {
       display: flex;
@@ -1120,6 +1124,57 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       background: #e2e8f0;
     }
 
+    /* Interactive & accessibility enhancements */
+    [role="button"], button, .norm-card, .arg-card, .recom-trigger, .step-node, .progress-segment-presential, .progress-segment-ead {
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Global dynamic tooltip (never clipped by parents, high z-index) */
+    .global-tooltip {
+      position: fixed;
+      z-index: 999999;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      border-radius: 6px;
+      max-width: 300px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      word-wrap: break-word;
+      font-weight: 500;
+    }
+    .global-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .global-tooltip::after {
+      content: "";
+      position: absolute;
+      border: 6px solid transparent;
+    }
+    .global-tooltip.arrow-bottom::after {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top-color: #0f172a;
+    }
+    .global-tooltip.arrow-top::after {
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-color: #0f172a;
+    }
+
     /* Footer */
     .site-footer {
       background: #042f2e;
@@ -1201,7 +1256,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
         <!-- 2016 -->
         <article class="timeline-item">
-          <button class="timeline-marker" onclick="toggleNormCard('norm-2016')" aria-label="Ano 2016 - Resolução CNS 515">16</button>
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2016')" aria-label="Ano 2016 - Resolução CNS 515" data-tooltip="Clique ou toque para expandir os detalhes do marco de 2016">16</button>
           <div class="timeline-card-col">
             <div id="norm-2016" class="norm-card" onclick="toggleNormCard('norm-2016')" tabindex="0" role="button" aria-expanded="false">
               <span class="norm-tag">2016 • Resolução CNS nº 515</span>
@@ -1216,7 +1271,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
         <!-- 2017 -->
         <article class="timeline-item">
-          <button class="timeline-marker" onclick="toggleNormCard('norm-2017')" aria-label="Ano 2017 - Resolução CNS 559">17</button>
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2017')" aria-label="Ano 2017 - Resolução CNS 559" data-tooltip="Clique ou toque para expandir os detalhes do marco de 2017">17</button>
           <div class="timeline-card-col">
             <div id="norm-2017" class="norm-card" onclick="toggleNormCard('norm-2017')" tabindex="0" role="button" aria-expanded="false">
               <span class="norm-tag">2017 • Resolução CNS nº 559</span>
@@ -1231,7 +1286,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
         <!-- 2020 -->
         <article class="timeline-item">
-          <button class="timeline-marker" onclick="toggleNormCard('norm-2020')" aria-label="Ano 2020 - Posicionamento COFFITO">20</button>
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2020')" aria-label="Ano 2020 - Posicionamento COFFITO" data-tooltip="Clique ou toque para expandir os detalhes do marco de 2020">20</button>
           <div class="timeline-card-col">
             <div id="norm-2020" class="norm-card" onclick="toggleNormCard('norm-2020')" tabindex="0" role="button" aria-expanded="false">
               <span class="norm-tag">2020 • COFFITO &amp; Conselhos Profissionais</span>
@@ -1246,7 +1301,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
         <!-- 2025 -->
         <article class="timeline-item">
-          <button class="timeline-marker" onclick="toggleNormCard('norm-2025')" aria-label="Ano 2025 - Decreto 12.456 e Portaria MEC 378">25</button>
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2025')" aria-label="Ano 2025 - Decreto 12.456 e Portaria MEC 378" data-tooltip="Clique ou toque para expandir as diretrizes vigentes de 2025">25</button>
           <div class="timeline-card-col">
             <div id="norm-2025" class="norm-card" onclick="toggleNormCard('norm-2025')" tabindex="0" role="button" aria-expanded="false">
               <span class="norm-tag">19/05/2025 • Decreto nº 12.456 &amp; Portaria MEC nº 378</span>
@@ -1267,7 +1322,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
         <!-- 2026 -->
         <article class="timeline-item">
-          <button class="timeline-marker" onclick="toggleNormCard('norm-2026')" aria-label="Ano 2026 - PL 5.414/2016 CCJ">26</button>
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2026')" aria-label="Ano 2026 - PL 5.414/2016 CCJ" data-tooltip="Clique ou toque para expandir a situação jurídica do PL em 2026">26</button>
           <div class="timeline-card-col">
             <div id="norm-2026" class="norm-card" onclick="toggleNormCard('norm-2026')" tabindex="0" role="button" aria-expanded="false">
               <span class="norm-tag">2026 • PL nº 5.414/2016 na CCJ</span>
@@ -1321,10 +1376,10 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
         </p>
         
         <div class="progress-bar-track" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" aria-label="Limite de 30% a distância em cursos presenciais">
-          <div class="progress-segment-presential">
+          <div class="progress-segment-presential" tabindex="0" role="button" aria-label="Presencial Mínimo Obrigatório: 70%" data-tooltip="Presencial Mínimo Obrigatório (≥ 70%): Práticas laboratoriais, clínicas, estágios supervisionados e vivências nos serviços do SUS.">
             <span>Presencial Mínimo Obrigatório: 70%</span>
           </div>
-          <div class="progress-segment-ead" tabindex="0">
+          <div class="progress-segment-ead" tabindex="0" role="button" aria-label="EaD Complementar: Até 30%" data-tooltip="Carga EaD Complementar (≤ 30%): Limite máximo a distância em cursos presenciais, expressamente previsto no PPC e articulado às DCN.">
             <span>Até 30% EaD</span>
           </div>
         </div>
@@ -1941,14 +1996,25 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       if (!isExpanded) {
         card.classList.add('expanded');
         card.setAttribute('aria-expanded', 'true');
+        // Scroll card gently into view if partially hidden
+        setTimeout(() => {
+          const rect = card.getBoundingClientRect();
+          if (rect.top < 70 || rect.bottom > window.innerHeight) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 50);
       }
     }
 
     // Interactive Quiz / Verificador
     function runQuizChecker() {
-      const courseType = document.getElementById('q-course-type').value;
-      const intent = document.getElementById('q-intent').value;
+      const courseSelect = document.getElementById('q-course-type');
+      const intentSelect = document.getElementById('q-intent');
       const feedbackEl = document.getElementById('quiz-feedback');
+      if (!courseSelect || !intentSelect || !feedbackEl) return;
+
+      const courseType = courseSelect.value;
+      const intent = intentSelect.value;
 
       let icon = "⚠️";
       let title = "";
@@ -2026,21 +2092,25 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       tabs.forEach(key => {
         const btn = document.getElementById('tab-' + key);
         const panel = document.getElementById('panel-' + key);
-        if (key === tabKey) {
-          btn.classList.add('active');
-          btn.setAttribute('aria-selected', 'true');
-          panel.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-          btn.setAttribute('aria-selected', 'false');
-          panel.classList.remove('active');
+        if (btn && panel) {
+          if (key === tabKey) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            panel.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+            panel.classList.remove('active');
+          }
         }
       });
     }
 
     // Filter courses table
     function filterCoursesTable() {
-      const filter = document.getElementById('table-search').value.toLowerCase();
+      const input = document.getElementById('table-search');
+      if (!input) return;
+      const filter = input.value.toLowerCase().trim();
       const rows = document.querySelectorAll('#courses-table tbody tr');
       rows.forEach(row => {
         const text = row.innerText.toLowerCase();
@@ -2050,6 +2120,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
     // Toggle argument card
     function toggleArg(el) {
+      if (!el) return;
       el.classList.toggle('open');
       const expanded = el.classList.contains('open');
       el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -2082,22 +2153,36 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
     function updateStepView() {
       const idx = state.currentStep - 1;
       const data = stepData[idx];
-      document.getElementById('step-pill').innerText = data.pill;
-      document.getElementById('step-title-text').innerText = data.title;
-      document.getElementById('step-desc-text').innerText = data.content;
-      document.getElementById('step-indicator-text').innerText = `Passo ${state.currentStep} de 4`;
+      const pillEl = document.getElementById('step-pill');
+      const titleEl = document.getElementById('step-title-text');
+      const descEl = document.getElementById('step-desc-text');
+      const indicatorEl = document.getElementById('step-indicator-text');
+      const prevBtn = document.getElementById('btn-prev-step');
+      const nextBtn = document.getElementById('btn-next-step');
 
-      document.querySelectorAll('.step-node').forEach((node, i) => {
+      if (pillEl) pillEl.innerText = data.pill;
+      if (titleEl) titleEl.innerText = data.title;
+      if (descEl) descEl.innerText = data.content;
+      if (indicatorEl) indicatorEl.innerText = `Passo ${state.currentStep} de 4`;
+
+      document.querySelectorAll('.stepper-nav .step-node').forEach((node, i) => {
         if (i + 1 === state.currentStep) {
           node.classList.add('active');
+          node.setAttribute('aria-selected', 'true');
         } else {
           node.classList.remove('active');
+          node.setAttribute('aria-selected', 'false');
         }
       });
 
-      document.getElementById('btn-prev-step').disabled = state.currentStep === 1;
-      document.getElementById('btn-next-step').disabled = state.currentStep === state.totalSteps;
-      document.getElementById('btn-next-step').innerText = state.currentStep === state.totalSteps ? "Concluído" : "Próxima Etapa →";
+      if (prevBtn) {
+        prevBtn.disabled = state.currentStep === 1;
+        prevBtn.style.opacity = state.currentStep === 1 ? '0.5' : '1';
+        prevBtn.style.cursor = state.currentStep === 1 ? 'not-allowed' : 'pointer';
+      }
+      if (nextBtn) {
+        nextBtn.innerText = state.currentStep === state.totalSteps ? "Concluído ✓" : "Próxima Etapa →";
+      }
     }
 
     function goToStep(s) {
@@ -2116,13 +2201,19 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       if (state.currentStep < state.totalSteps) {
         state.currentStep++;
         updateStepView();
+      } else {
+        // Recycle or show completion notice
+        state.currentStep = 1;
+        updateStepView();
       }
     }
 
     // Slider simulator
     function updateSliderState(val) {
       const box = document.getElementById('slider-result');
-      if (val === "1") {
+      if (!box) return;
+      const v = String(val);
+      if (v === "1") {
         box.style.background = "#f0fdf4";
         box.style.borderColor = "#bbf7d0";
         box.innerHTML = `
@@ -2135,7 +2226,7 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
           </p>
           <span style="font-size:0.75rem; font-weight:700; background:#dcfce7; color:#15803d; padding:0.2rem 0.5rem; border-radius:4px;">STATUS: Totalmente autorizado e plenamente respaldado por todos os conselhos e MEC</span>
         `;
-      } else if (val === "2") {
+      } else if (v === "2") {
         box.style.background = "#f0f9ff";
         box.style.borderColor = "#bae6fd";
         box.innerHTML = `
@@ -2166,13 +2257,16 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
 
     // Recommendations Accordion
     function toggleRecom(btn) {
-      const item = btn.parentElement;
+      if (!btn) return;
+      const item = btn.closest('.recom-item');
+      if (!item) return;
       const isActive = item.classList.contains('active');
       
       // Close others
       document.querySelectorAll('.recom-item').forEach(i => {
         i.classList.remove('active');
-        i.querySelector('.recom-trigger').setAttribute('aria-expanded', 'false');
+        const trigger = i.querySelector('.recom-trigger');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
       });
 
       if (!isActive) {
@@ -2181,50 +2275,249 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
       }
     }
 
-    // Copy Citation to Clipboard
+    // Copy Citation with multi-browser clipboard fallback
     function copyCitation() {
-      const text = document.getElementById('citation-content').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const copyBtn = document.getElementById('copy-btn');
-        const copyText = document.getElementById('copy-text');
-        copyText.innerText = "Citação Copiada!";
-        copyBtn.style.background = "#15803d";
+      const citationEl = document.getElementById('citation-content');
+      if (!citationEl) return;
+      const text = citationEl.innerText.trim();
+      const copyBtn = document.getElementById('copy-btn');
+      const copyText = document.getElementById('copy-text');
+
+      const showSuccess = () => {
+        if (copyText) copyText.innerText = "Citação Copiada!";
+        if (copyBtn) copyBtn.style.background = "#15803d";
         setTimeout(() => {
-          copyText.innerText = "Copiar Citação";
-          copyBtn.style.background = "var(--accent)";
+          if (copyText) copyText.innerText = "Copiar Citação";
+          if (copyBtn) copyBtn.style.background = "var(--accent)";
         }, 2500);
-      }).catch(err => {
-        alert("Não foi possível copiar automaticamente. Por favor, selecione e copie o texto manualmente.");
-      });
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
+          fallbackCopyText(text, showSuccess);
+        });
+      } else {
+        fallbackCopyText(text, showSuccess);
+      }
     }
 
-    // Highlight active nav item on scroll
-    window.addEventListener('scroll', () => {
-      const sections = ['hero', 'jornada', 'painel-cursos', 'fluxo-decisorio', 'recomendacoes', 'citacao'];
-      let currentSec = 'jornada';
-      sections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 140 && rect.bottom >= 140) {
-            currentSec = id;
+    function fallbackCopyText(text, callback) {
+      try {
+        const tempArea = document.createElement("textarea");
+        tempArea.value = text;
+        tempArea.setAttribute('readonly', '');
+        tempArea.style.position = 'fixed';
+        tempArea.style.top = '-9999px';
+        tempArea.style.left = '-9999px';
+        document.body.appendChild(tempArea);
+        tempArea.focus();
+        tempArea.select();
+        const successful = document.execCommand('copy');
+        document.body.removeChild(tempArea);
+        if (successful && callback) {
+          callback();
+        } else {
+          showManualCopyPrompt(text);
+        }
+      } catch (err) {
+        showManualCopyPrompt(text);
+      }
+    }
+
+    function showManualCopyPrompt(text) {
+      window.prompt("Copie a citação abaixo utilizando Ctrl+C (ou toque e segure):", text);
+    }
+
+    // ROBUST TOOLTIP ENGINE (Hover on Desktop, Tap on Mobile, No Clipping)
+    let activeTooltipTarget = null;
+    let tooltipEl = null;
+
+    function initTooltipEngine() {
+      // Create singleton floating tooltip attached directly to document.body
+      tooltipEl = document.createElement('div');
+      tooltipEl.className = 'global-tooltip';
+      tooltipEl.setAttribute('role', 'tooltip');
+      tooltipEl.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(tooltipEl);
+
+      function showTooltip(target) {
+        const text = target.getAttribute('data-tooltip');
+        if (!text || !tooltipEl) return;
+
+        tooltipEl.textContent = text;
+        tooltipEl.className = 'global-tooltip visible';
+        tooltipEl.setAttribute('aria-hidden', 'false');
+        activeTooltipTarget = target;
+
+        // Position tooltip relative to target in viewport
+        const rect = target.getBoundingClientRect();
+        const tipRect = tooltipEl.getBoundingClientRect();
+        const pad = 8;
+
+        // Calculate horizontal center
+        let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+        // Ensure within horizontal screen bounds
+        if (left < pad) left = pad;
+        if (left + tipRect.width > window.innerWidth - pad) {
+          left = window.innerWidth - tipRect.width - pad;
+        }
+
+        // Calculate vertical position (prefer above, flip below if not enough room)
+        let top = rect.top - tipRect.height - 10;
+        let isArrowBottom = true;
+
+        if (top < pad) {
+          // Place below target
+          top = rect.bottom + 10;
+          isArrowBottom = false;
+        }
+
+        tooltipEl.style.left = `${Math.round(left)}px`;
+        tooltipEl.style.top = `${Math.round(top)}px`;
+
+        if (isArrowBottom) {
+          tooltipEl.classList.add('arrow-bottom');
+          tooltipEl.classList.remove('arrow-top');
+        } else {
+          tooltipEl.classList.add('arrow-top');
+          tooltipEl.classList.remove('arrow-bottom');
+        }
+      }
+
+      function hideTooltip() {
+        if (!tooltipEl) return;
+        tooltipEl.className = 'global-tooltip';
+        tooltipEl.setAttribute('aria-hidden', 'true');
+        activeTooltipTarget = null;
+      }
+
+      // Delegate mouse & focus events
+      document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+          showTooltip(target);
+        }
+      });
+
+      document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target && activeTooltipTarget === target) {
+          hideTooltip();
+        }
+      });
+
+      document.addEventListener('focusin', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+          showTooltip(target);
+        }
+      });
+
+      document.addEventListener('focusout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target && activeTooltipTarget === target) {
+          hideTooltip();
+        }
+      });
+
+      // Mobile Touch / Click support: tap to show/toggle tooltip, tap outside to dismiss
+      document.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+          if (activeTooltipTarget === target) {
+            // Already showing on this element, do not hide immediately if triggered by click
+          } else {
+            showTooltip(target);
+          }
+        } else {
+          // Clicked outside any tooltip target
+          hideTooltip();
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        if (activeTooltipTarget) {
+          hideTooltip();
+        }
+      }, { passive: true });
+    }
+
+    // Keyboard support for all elements acting as buttons
+    function initKeyboardSupport() {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const target = e.target.closest('[role="button"]:not(button)');
+          if (target) {
+            e.preventDefault();
+            target.click();
           }
         }
       });
-      document.querySelectorAll('.nav-link').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href === '#' + currentSec) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
-      });
-    });
+    }
 
-    // Initialize Quiz & View on load
+    // Scroll spy for top navbar
+    function initScrollSpy() {
+      const sections = ['hero', 'jornada', 'painel-cursos', 'fluxo-decisorio', 'recomendacoes', 'citacao'];
+      const links = document.querySelectorAll('.nav-link');
+
+      window.addEventListener('scroll', () => {
+        let currentSec = 'jornada';
+        const scrollPos = window.scrollY + 160;
+
+        sections.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            const top = el.offsetTop;
+            const height = el.offsetHeight;
+            if (scrollPos >= top && scrollPos < top + height) {
+              currentSec = id;
+            }
+          }
+        });
+
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href === '#' + currentSec) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }, { passive: true });
+    }
+
+    // MASTER INITIALIZATION AFTER DOM LOAD
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Quiz checker
       runQuizChecker();
+      const courseSelect = document.getElementById('q-course-type');
+      const intentSelect = document.getElementById('q-intent');
+      if (courseSelect) courseSelect.addEventListener('change', runQuizChecker);
+      if (intentSelect) intentSelect.addEventListener('change', runQuizChecker);
+
+      // 2. Initialize Slider
+      const slider = document.getElementById('format-slider');
+      if (slider) {
+        updateSliderState(slider.value);
+        slider.addEventListener('input', (e) => updateSliderState(e.target.value));
+        slider.addEventListener('change', (e) => updateSliderState(e.target.value));
+      }
+
+      // 3. Initialize Stepper View
       updateStepView();
+
+      // 4. Initialize Table Search
+      const searchInput = document.getElementById('table-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', filterCoursesTable);
+        searchInput.addEventListener('keyup', filterCoursesTable);
+        searchInput.addEventListener('search', filterCoursesTable);
+      }
+
+      // 5. Initialize Tooltip engine & keyboard accessibility
+      initTooltipEngine();
+      initKeyboardSupport();
+      initScrollSpy();
     });
   </script>
 <script>

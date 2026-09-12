@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graduação em Saúde e EaD — Infográfico Interativo</title>
+  <!-- Basecoat CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <!-- System Shell CSS -->
+  <style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Complements basecoat; artifacts override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: #0a8f3c; }
+.kpi .kpi-delta.down { color: #cf3131; }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+</style>
+  <!-- System Shell JS -->
+  
+
+  <style>
+    :root {
+      --accent: #0f766e; /* Teal médico e regulatório */
+      --accent-rgb: 15, 118, 110;
+      --teal-light: #f0fdfa;
+      --teal-mid: #ccfbf1;
+      --navy: #0f172a;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --warning: #b45309;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Top Navigation bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .nav-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      overflow-x: auto;
+    }
+    .brand-tag {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
+    }
+    .nav-link {
+      display: inline-block;
+      padding: 0.45rem 0.8rem;
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover, .nav-link:focus-visible {
+      color: var(--accent-text);
+      background: var(--teal-light);
+    }
+    .nav-link.active {
+      color: var(--accent-contrast);
+      background: var(--accent);
+    }
+
+    /* Hero section */
+    .hero-banner {
+      background: linear-gradient(135deg, #042f2e 0%, #0f766e 65%, #115e59 100%);
+      color: #ffffff;
+      padding: 3.5rem 1.5rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(204, 251, 241, 0.12) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+    }
+    .hero-content {
+      max-width: 1040px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #f0fdfa;
+      letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+    }
+    .hero-title {
+      font-size: clamp(1.65rem, 3.2vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.25;
+      color: #ffffff;
+      margin: 0 0 1rem 0;
+      max-width: 900px;
+    }
+    .hero-subtitle {
+      font-size: clamp(0.98rem, 1.8vw, 1.15rem);
+      line-height: 1.55;
+      color: #ccfbf1;
+      max-width: 860px;
+      margin: 0 0 1.5rem 0;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.2rem;
+      font-size: 0.85rem;
+      color: #99f6e4;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      padding-top: 1rem;
+    }
+    .author-highlight {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Core container */
+    .main-wrapper {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .section-header {
+      margin-bottom: 1.8rem;
+    }
+    .section-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .section-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0 0 0.4rem;
+      line-height: 1.3;
+    }
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin: 0;
+      max-width: 850px;
+    }
+
+    /* Timeline Section (Layout A) */
+    .timeline-wrap {
+      position: relative;
+      margin: 2rem 0;
+      padding: 0.5rem 0;
+    }
+    .timeline-rail {
+      position: absolute;
+      left: 28px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--accent), #99f6e4);
+      border-radius: 4px;
+    }
+    @media (min-width: 768px) {
+      .timeline-rail {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.8rem;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      .timeline-item {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .timeline-item:nth-child(even) {
+        flex-direction: row-reverse;
+      }
+    }
+
+    .timeline-marker {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-contrast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 0 0 4px #ffffff, 0 4px 10px rgba(15, 118, 110, 0.35);
+      position: relative;
+      z-index: 3;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .timeline-marker:hover, .timeline-marker:focus-visible {
+      transform: scale(1.1);
+      box-shadow: 0 0 0 6px var(--teal-mid), 0 4px 12px rgba(15, 118, 110, 0.45);
+      outline: none;
+    }
+    @media (min-width: 768px) {
+      .timeline-marker {
+        margin: 0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .timeline-marker:hover, .timeline-marker:focus-visible {
+        transform: translateX(-50%) scale(1.12);
+      }
+    }
+
+    .timeline-card-col {
+      padding-left: 58px;
+      width: 100%;
+    }
+    @media (min-width: 768px) {
+      .timeline-card-col {
+        width: 44%;
+        padding-left: 0;
+      }
+      .timeline-item:nth-child(odd) .timeline-card-col {
+        margin-right: auto;
+        padding-right: 2rem;
+      }
+      .timeline-item:nth-child(even) .timeline-card-col {
+        margin-left: auto;
+        padding-left: 2rem;
+      }
+    }
+
+    .norm-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .norm-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.12);
+    }
+    .norm-card.expanded {
+      border-left: 4px solid var(--accent);
+      background: #fafcfc;
+    }
+    .norm-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+      background: var(--teal-light);
+      color: var(--accent-text);
+      border: 1px solid var(--teal-mid);
+    }
+    .norm-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 0.5rem;
+      line-height: 1.35;
+    }
+    .norm-brief {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .norm-details {
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.5;
+      display: none;
+      background: #ffffff;
+      padding: 0.75rem;
+      border-radius: var(--radius);
+    }
+    .norm-card.expanded .norm-details {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Comparison Cards */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+    @media (min-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .comp-card {
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid;
+    }
+    .comp-card.allowed {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+    .comp-card.not-allowed {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+    }
+    .comp-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .comp-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .allowed .comp-badge {
+      background: var(--success);
+      color: #ffffff;
+    }
+    .not-allowed .comp-badge {
+      background: var(--danger);
+      color: #ffffff;
+    }
+    .comp-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin: 0;
+    }
+    .allowed .comp-title { color: #14532d; }
+    .not-allowed .comp-title { color: #7f1d1d; }
+    .comp-list {
+      margin: 0;
+      padding-left: 1.2rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .allowed .comp-list li {
+      color: #166534;
+      margin-bottom: 0.6rem;
+    }
+    .not-allowed .comp-list li {
+      color: #991b1b;
+      margin-bottom: 0.6rem;
+    }
+
+    /* 30% EaD Gauge & Bar display */
+    .limit-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .progress-bar-track {
+      background: #e2e8f0;
+      height: 34px;
+      border-radius: 999px;
+      display: flex;
+      overflow: hidden;
+      margin: 1rem 0 0.5rem;
+      position: relative;
+    }
+    .progress-segment-presential {
+      width: 70%;
+      background: var(--accent);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: width 0.4s ease;
+    }
+    .progress-segment-ead {
+      width: 30%;
+      background: #38bdf8;
+      color: #0c4a6e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      white-space: nowrap;
+      position: relative;
+      cursor: help;
+      transition: width 0.4s ease;
+    }
+    .progress-segment-ead:hover::after {
+      content: "Máximo de 30% a distância em cursos presenciais (prevista no PPC e articulada às DCN)";
+      position: absolute;
+      bottom: 40px;
+      right: 0;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 4px;
+      width: 260px;
+      line-height: 1.35;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .limit-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .limit-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .limit-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Mini Verificador / Quiz */
+    .quiz-card {
+      background: #ffffff;
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .quiz-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-text);
+      margin: 0 0 0.5rem;
+    }
+    .quiz-controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    @media (min-width: 640px) {
+      .quiz-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .quiz-select-group label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    .quiz-select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .quiz-feedback {
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    /* Section B: Painel por Curso & Tabs */
+    .tabs-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      padding: 0.55rem 1.1rem;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: var(--teal-light);
+      color: var(--accent-text);
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: var(--accent-contrast);
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Table Filter */
+    .table-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      max-width: 320px;
+      width: 100%;
+      padding: 0.55rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.86rem;
+    }
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+    .courses-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .courses-table th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 0.85rem 1rem;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .courses-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+    .courses-table tr:last-child td {
+      border-bottom: none;
+    }
+    .badge-presencial {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .badge-semipresencial {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    /* Council Arguments Accordion */
+    .council-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 640px) {
+      .council-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .arg-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .arg-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+    .arg-summary {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+    .arg-body {
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      display: none;
+    }
+    .arg-card.open .arg-body {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    .arg-icon-toggle {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-text);
+      transition: transform 0.2s ease;
+    }
+    .arg-card.open .arg-icon-toggle {
+      transform: rotate(45deg);
+    }
+
+    /* Section C: Fluxo Decisório */
+    .stepper-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .step-node {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .step-node.active {
+      background: var(--accent);
+      color: var(--accent-contrast);
+      border-color: var(--accent);
+    }
+    .step-node-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+    }
+    .step-node.active .step-node-num {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .step-view {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .step-tag-pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--teal-light);
+      color: var(--accent-text);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .step-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin: 0 0 0.8rem;
+      color: var(--text);
+    }
+    .step-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Activities Cards Grid */
+    .activities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .act-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      border-top: 3px solid var(--accent);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .act-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .act-icon {
+      font-size: 1.6rem;
+    }
+    .act-label {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .act-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Interactive Comparative Slider */
+    .slider-simulator {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .slider-control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .slider-range {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .slider-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      border: 2px solid #ffffff;
+    }
+    .slider-steps-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .slider-result-box {
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      border: 1px solid;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    /* Recommendations (Accordion) */
+    .recom-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .recom-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+    .recom-item:hover {
+      border-color: var(--accent);
+    }
+    .recom-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      gap: 1rem;
+    }
+    .recom-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--teal-light);
+      color: var(--accent-text);
+      border: 1px solid var(--teal-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .recom-title-text {
+      flex: 1;
+    }
+    .recom-icon {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+    .recom-item.active .recom-icon {
+      transform: rotate(180deg);
+      color: var(--accent-text);
+    }
+    .recom-item.active .recom-num {
+      background: var(--accent);
+      color: var(--accent-contrast);
+    }
+    .recom-content {
+      padding: 0 1.25rem 1.2rem 3.5rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+      display: none;
+    }
+    .recom-item.active .recom-content {
+      display: block;
+    }
+
+    /* Citation Box */
+    .citation-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .citation-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      background: #f8fafc;
+      padding: 1.1rem;
+      border-radius: var(--radius);
+      border-left: 4px solid var(--accent);
+      line-height: 1.6;
+      color: var(--text);
+      margin: 1rem 0;
+      white-space: pre-wrap;
+    }
+    .sources-list {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Action buttons */
+    .btn-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--accent);
+      color: var(--accent-contrast);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .btn-copy:hover {
+      opacity: 0.9;
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #042f2e;
+      color: #99f6e4;
+      padding: 3rem 1.5rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    .footer-quote {
+      background: rgba(255, 255, 255, 0.06);
+      border-left: 3px solid #5eead4;
+      padding: 1rem 1.25rem;
+      border-radius: 4px;
+      color: #f0fdfa;
+      font-size: 0.92rem;
+      margin-bottom: 1.8rem;
+    }
+
+    /* Print styles */
+    @media print {
+      .top-nav, .btn-action-row, .quiz-controls, .slider-range, .table-tools {
+        display: none !important;
+      }
+      .norm-details, .arg-body, .recom-content {
+        display: block !important;
+      }
+      body {
+        font-size: 11pt;
+        color: #000;
+        background: #fff;
+      }
+      .hero-banner {
+        background: #fff !important;
+        color: #000 !important;
+        border-bottom: 2px solid #000;
+      }
+      .hero-title, .hero-subtitle, .author-highlight {
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="top-nav" aria-label="Navegação do Infográfico">
+    <div class="nav-inner">
+      <a href="#hero" class="brand-tag">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Saúde &amp; EaD | UFC</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#jornada" class="nav-link active">Jornada Normativa</a></li>
+        <li><a href="#painel-cursos" class="nav-link">Painel por Curso</a></li>
+        <li><a href="#fluxo-decisorio" class="nav-link">Fluxo Decisório</a></li>
+        <li><a href="#recomendacoes" class="nav-link">Recomendações</a></li>
+        <li><a href="#citacao" class="nav-link">Citação</a></li>
+        <li><button onclick="window.print()" class="btn-secondary" style="padding:0.35rem 0.65rem; font-size:0.75rem;" title="Imprimir / Salvar em PDF">Imprimir / PDF</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header id="hero" class="hero-banner">
+    <div class="hero-content">
+      <div class="hero-badge-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        Infográfico Interativo Educacional • Material Didático SUS / Graduação
+      </div>
+      <h1 class="hero-title">Oferta de cursos de graduação na modalidade EaD na área da Saúde: posicionamento normativo e dos conselhos de área</h1>
+      <p class="hero-subtitle">
+        O marco regulatório vigente brasileiro <strong>não autoriza</strong> a oferta de graduação na área da Saúde de forma <em>integralmente a distância</em>. Compreenda as diretrizes do Decreto nº 12.456/2025, Portaria MEC nº 378/2025, Resoluções do CNS e orientações dos conselhos profissionais.
+      </p>
+      <div class="hero-meta">
+        <div>Autoria: <span class="author-highlight">Andréa Soares Rocha da Silva</span> (Universidade Federal do Ceará — UFC)</div>
+        <div>Público-alvo: Estudantes de Graduação da Saúde, Docentes e Gestores</div>
+        <div>Atualização: 2026</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+
+    <!-- SEÇÃO A — JORNADA NORMATIVA -->
+    <section id="jornada" class="shell-section" style="padding-top: 1.5rem;">
+      <div class="section-header">
+        <span class="section-eyebrow">Layout A • Linha do Tempo &amp; Limites Normativos</span>
+        <h2 class="section-title">Jornada Normativa: A Trajetória Regulatória da Saúde</h2>
+        <p class="section-desc">
+          Explore a linha do tempo interativa com os marcos jurídicos e resoluções do Conselho Nacional de Saúde (CNS), COFFITO e atos do MEC até 2026. Clique nos cartões para visualizar detalhes e impactos regulatórios.
+        </p>
+      </div>
+
+      <!-- Timeline interativa -->
+      <div class="timeline-wrap" role="region" aria-label="Linha do tempo normativa">
+        <div class="timeline-rail" aria-hidden="true"></div>
+
+        <!-- 2016 -->
+        <article class="timeline-item">
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2016')" aria-label="Ano 2016 - Resolução CNS 515">16</button>
+          <div class="timeline-card-col">
+            <div id="norm-2016" class="norm-card" onclick="toggleNormCard('norm-2016')" tabindex="0" role="button" aria-expanded="false">
+              <span class="norm-tag">2016 • Resolução CNS nº 515</span>
+              <h3 class="norm-title">Posicionamento contrário à graduação integral em EaD</h3>
+              <p class="norm-brief">O Conselho Nacional de Saúde firmou posição veementemente contrária à autorização de cursos de graduação da área da Saúde 100% EaD.</p>
+              <div class="norm-details">
+                <strong>Fundamentação central:</strong> Prejuízos irreparáveis à qualidade da formação profissional, risco direto à segurança dos usuários e comprometimento da resolubilidade da atenção no SUS. A formação em saúde exige o desenvolvimento presencial e longitudinal de competências clínicas e relacionais.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2017 -->
+        <article class="timeline-item">
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2017')" aria-label="Ano 2017 - Resolução CNS 559">17</button>
+          <div class="timeline-card-col">
+            <div id="norm-2017" class="norm-card" onclick="toggleNormCard('norm-2017')" tabindex="0" role="button" aria-expanded="false">
+              <span class="norm-tag">2017 • Resolução CNS nº 559</span>
+              <h3 class="norm-title">DCN articuladas ao SUS e cenários reais de prática</h3>
+              <p class="norm-brief">Reforço às Diretrizes Curriculares Nacionais (DCN) exigindo formação humanista, técnica e interprofissional inserida na rede de serviços.</p>
+              <div class="norm-details">
+                <strong>Diretriz essencial:</strong> A aprendizagem do cuidado em saúde requer integração ensino-serviço-comunidade em cenários reais, trabalho em equipe multiprofissional e contato presencial com as necessidades da população desde o início do percurso formativo.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2020 -->
+        <article class="timeline-item">
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2020')" aria-label="Ano 2020 - Posicionamento COFFITO">20</button>
+          <div class="timeline-card-col">
+            <div id="norm-2020" class="norm-card" onclick="toggleNormCard('norm-2020')" tabindex="0" role="button" aria-expanded="false">
+              <span class="norm-tag">2020 • COFFITO &amp; Conselhos Profissionais</span>
+              <h3 class="norm-title">Defesa intransigente do ensino presencial e estágios</h3>
+              <p class="norm-brief">O Conselho Federal de Fisioterapia e Terapia Ocupacional rechaça a modalidade integralmente a distância na formação de fisioterapeutas e terapeutas ocupacionais.</p>
+              <div class="norm-details">
+                <strong>Argumento prático:</strong> A avaliação cinético-funcional, a reabilitação física e os manejos terapêuticos exigem toque, sensibilidade palpatória, supervisão contínua em estágios e interação presencial direta com o paciente, inviáveis em modelos virtuais integrais.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2025 -->
+        <article class="timeline-item">
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2025')" aria-label="Ano 2025 - Decreto 12.456 e Portaria MEC 378">25</button>
+          <div class="timeline-card-col">
+            <div id="norm-2025" class="norm-card" onclick="toggleNormCard('norm-2025')" tabindex="0" role="button" aria-expanded="false">
+              <span class="norm-tag">19/05/2025 • Decreto nº 12.456 &amp; Portaria MEC nº 378</span>
+              <h3 class="norm-title">Reorganização dos formatos de oferta e vedações expressas</h3>
+              <p class="norm-brief">Marco regulatório federal que redefine os modelos presencial, semipresencial e EaD, com regras taxativas para a área da Saúde.</p>
+              <div class="norm-details">
+                <strong>Regras em vigor:</strong>
+                <ul style="margin:0.4rem 0 0 1rem; padding:0;">
+                  <li><strong>Veda expressamente</strong> qualquer graduação em Saúde integralmente a distância;</li>
+                  <li><strong>Medicina, Enfermagem, Odontologia e Psicologia</strong> passam a ser <em>exclusivamente presenciais</em>;</li>
+                  <li>Demais cursos de Saúde e Bem-Estar podem ser presenciais ou semipresenciais com percentuais regulamentares mínimos presenciais;</li>
+                  <li>Fixa limite máximo de <strong>30% de carga horária a distância</strong> em cursos presenciais, com obrigatoriedade de previsão pedagógica no PPC e aderência às DCN.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2026 -->
+        <article class="timeline-item">
+          <button class="timeline-marker" onclick="toggleNormCard('norm-2026')" aria-label="Ano 2026 - PL 5.414/2016 CCJ">26</button>
+          <div class="timeline-card-col">
+            <div id="norm-2026" class="norm-card" onclick="toggleNormCard('norm-2026')" tabindex="0" role="button" aria-expanded="false">
+              <span class="norm-tag">2026 • PL nº 5.414/2016 na CCJ</span>
+              <h3 class="norm-title">Avanço legislativo para proibição em lei de EaD na Saúde</h3>
+              <p class="norm-brief">Projeto de Lei avança na Comissão de Constituição e Justiça da Câmara dos Deputados visando vedar legalmente cursos de Saúde e Ed. Física em EaD.</p>
+              <div class="norm-details">
+                <strong>Nota jurídica:</strong> Trata-se de proposição em tramitação legislativa. Até sua eventual aprovação pelas duas Casas e sanção presidencial, o regime jurídico aplicável é o fixado pelo Decreto nº 12.456/2025 e pela Portaria MEC nº 378/2025.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Quadro Comparativo Permitido vs Não Permitido -->
+      <div class="comparison-grid">
+        <div class="comp-card allowed">
+          <div class="comp-header">
+            <div class="comp-badge" aria-hidden="true">✓</div>
+            <h3 class="comp-title">O que é PERMITIDO pelo Marco Vigente</h3>
+          </div>
+          <ul class="comp-list">
+            <li><strong>Oferta presencial</strong> para todos os cursos de graduação da área da Saúde;</li>
+            <li><strong>Formato semipresencial</strong> restrito a determinados cursos de Saúde e Bem-Estar, desde que atendidos percentuais mínimos regulamentares de atividades presenciais e síncronas;</li>
+            <li><strong>Carga horária a distância de até 30%</strong> em cursos presenciais, atuando estritamente como recurso pedagógico complementar;</li>
+            <li>Uso pedagógico de tecnologias para simulação virtual, estudos de casos e bibliotecas digitais articuladas ao Projeto Pedagógico de Curso (PPC).</li>
+          </ul>
+        </div>
+
+        <div class="comp-card not-allowed">
+          <div class="comp-header">
+            <div class="comp-badge" aria-hidden="true">✕</div>
+            <h3 class="comp-title">O que NÃO É PERMITIDO pelo Marco Vigente</h3>
+          </div>
+          <ul class="comp-list">
+            <li><strong>Graduação da área da Saúde ofertada integralmente a distância (100% EaD)</strong>;</li>
+            <li>Oferta fora da modalidade <strong>exclusivamente presencial</strong> para Medicina, Enfermagem, Odontologia e Psicologia;</li>
+            <li>Substituição de práticas laboratoriais, clínicas, estágios curriculares e atividades extensionistas por atividades a distância;</li>
+            <li>Cursos que utilizem polos de apoio apenas como espaços administrativos, sem infraestrutura real de laboratórios e cenários de práticas.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Gráfico da Regra dos 30% EaD em Cursos Presenciais -->
+      <div class="limit-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">Limite Máximo de Carga Horária a Distância em Cursos Presenciais</h3>
+          <span class="shell-badge" style="background:#e0f2fe; color:#0369a1;">Portaria MEC nº 378/2025</span>
+        </div>
+        <p style="font-size:0.86rem; color:var(--text-muted); margin:0.4rem 0 0.8rem;">
+          Passe o mouse ou toque na barra azul para ler os requisitos regulamentares da carga complementar:
+        </p>
+        
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" aria-label="Limite de 30% a distância em cursos presenciais">
+          <div class="progress-segment-presential">
+            <span>Presencial Mínimo Obrigatório: 70%</span>
+          </div>
+          <div class="progress-segment-ead" tabindex="0">
+            <span>Até 30% EaD</span>
+          </div>
+        </div>
+
+        <div class="limit-legend">
+          <div class="limit-item">
+            <div class="limit-color-dot" style="background:var(--accent);"></div>
+            <span><strong>Carga Presencial (≥ 70%):</strong> Laboratórios, clínicas, estágios, extensão comunitária e vivências em serviços do SUS.</span>
+          </div>
+          <div class="limit-item">
+            <div class="limit-color-dot" style="background:#38bdf8;"></div>
+            <span><strong>Carga EaD Complementar (≤ 30%):</strong> Deve constar expressamente no PPC, estar integrada às DCN e ser informada com total transparência na matrícula.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini Verificador Interativo / Quiz -->
+      <div class="quiz-card">
+        <div class="quiz-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Mini Verificador: "Meu curso de interesse pode ser ofertado em EaD?"
+        </div>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0 0 1rem;">
+          Selecione as características do curso para verificar a situação regulatória e o enquadramento no marco vigente:
+        </p>
+
+        <div class="quiz-controls">
+          <div class="quiz-select-group">
+            <label for="q-course-type">1. Qual é o curso ou grupo formativo?</label>
+            <select id="q-course-type" class="quiz-select" onchange="runQuizChecker()">
+              <option value="core4">Medicina, Enfermagem, Odontologia ou Psicologia</option>
+              <option value="health-other">Outro curso da Saúde e Bem-Estar (ex.: Fisioterapia, Nutrição, Farmácia)</option>
+              <option value="non-health">Curso de outra área fora da Saúde (ex.: Pedagogia, Administração)</option>
+            </select>
+          </div>
+          <div class="quiz-select-group">
+            <label for="q-intent">2. Qual formato a IES está ofertando ou pretendendo?</label>
+            <select id="q-intent" class="quiz-select" onchange="runQuizChecker()">
+              <option value="full-ead">Integralmente a distância (100% EaD)</option>
+              <option value="semipresencial">Semipresencial com polos e práticas</option>
+              <option value="presencial-30">Presencial com até 30% de carga virtual complementar</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="quiz-feedback" class="quiz-feedback" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca;">
+          <!-- Preenchido via JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO B — PAINEL POR CURSO -->
+    <section id="painel-cursos" class="shell-section" style="padding-top: 2rem;">
+      <div class="section-header">
+        <span class="section-eyebrow">Layout B • Dimensões Normativas &amp; Cursos</span>
+        <h2 class="section-title">Painel por Curso e Visão Multidimensional</h2>
+        <p class="section-desc">
+          Analise o posicionamento normativo federal, o histórico do Conselho Nacional de Saúde, as deliberações dos conselhos profissionais e os limites pedagógicos inegociáveis.
+        </p>
+      </div>
+
+      <!-- Abas Multidimensionais -->
+      <div class="tabs-nav" role="tablist" aria-label="Dimensões regulatórias">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-marco" id="tab-marco" onclick="switchTab('marco')">Marco Federal (2025)</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-cns" id="tab-cns" onclick="switchTab('cns')">Conselho Nacional de Saúde (CNS)</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-conselhos" id="tab-conselhos" onclick="switchTab('conselhos')">Conselhos Profissionais</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-limites" id="tab-limites" onclick="switchTab('limites')">Limites Pedagógicos e Práticos</button>
+      </div>
+
+      <!-- Conteúdo das Abas -->
+      <div id="panel-marco" class="tab-panel active" role="tabpanel" aria-labelledby="tab-marco">
+        <div class="panel" style="margin-bottom:1.5rem;">
+          <h3 style="margin-top:0; color:var(--accent-text);">Diretrizes Centrais do Decreto nº 12.456 e Portaria MEC nº 378/2025</h3>
+          <p style="font-size:0.92rem; line-height:1.6; color:var(--text);">
+            O marco federal estabeleceu uma reorganização estrutural nos formatos autorizados pelo Ministério da Educação. Não é admitida a criação ou funcionamento de cursos de graduação da área da Saúde ofertados na modalidade 100% EaD. Os cursos dividem-se em:
+          </p>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:1rem;">
+            <div style="background:#f8fafc; padding:1rem; border-radius:var(--radius); border-left:3px solid #b91c1c;">
+              <strong style="color:#991b1b; display:block; margin-bottom:0.3rem;">Exclusivamente Presenciais:</strong>
+              Medicina, Enfermagem, Odontologia e Psicologia não podem adotar o formato semipresencial nem a distância como modalidade de oferta principal.
+            </div>
+            <div style="background:#f8fafc; padding:1rem; border-radius:var(--radius); border-left:3px solid #0284c7;">
+              <strong style="color:#0369a1; display:block; margin-bottom:0.3rem;">Presenciais ou Semipresenciais:</strong>
+              Demais cursos da área de Saúde e Bem-Estar podem adotar semipresencialidade, desde que comprovem percentuais mínimos de atividades presenciais e síncronas com mediação docente qualificada.
+            </div>
+            <div style="background:#f8fafc; padding:1rem; border-radius:var(--radius); border-left:3px solid var(--accent);">
+              <strong style="color:var(--accent-text); display:block; margin-bottom:0.3rem;">Teto de 30% em Cursos Presenciais:</strong>
+              Atividades pedagógicas mediadas por tecnologias só podem compor até 30% da carga horária de cursos presenciais, desde que detalhadas e aprovadas no PPC.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-cns" class="tab-panel" role="tabpanel" aria-labelledby="tab-cns">
+        <div class="panel" style="margin-bottom:1.5rem;">
+          <h3 style="margin-top:0; color:var(--accent-text);">A Posição Histórica e Principiológica do Conselho Nacional de Saúde (CNS)</h3>
+          <p style="font-size:0.92rem; line-height:1.6; color:var(--text);">
+            O Conselho Nacional de Saúde mantém posicionamento firme contra a autorização de graduações em Saúde em modalidade integralmente a distância. A entidade enfatiza que a saúde é um direito fundamental e que a atenção no SUS depende de profissionais aptos a lidar com a complexidade humana e comunitária.
+          </p>
+          <div style="background:var(--teal-light); border:1px solid var(--teal-mid); border-radius:var(--radius); padding:1rem; margin-top:1rem; font-size:0.88rem; color:#0f766e; line-height:1.55;">
+            <strong>Papel das Tecnologias segundo o CNS:</strong> Ambientes virtuais, simuladores digitais e telessaúde são reconhecidos como excelentes ferramentas de <em>apoio e complementação pedagógica</em> (discussão assíncrona de casos clínicos, busca bibliográfica orientada e metodologias ativas), mas <strong>jamais como substitutos</strong> das horas presenciais de interação clínica, propedêutica e trabalho interprofissional.
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-conselhos" class="tab-panel" role="tabpanel" aria-labelledby="tab-conselhos">
+        <div class="panel" style="margin-bottom:1.5rem;">
+          <h3 style="margin-top:0; color:var(--accent-text);">Papel dos Conselhos Profissionais de Área (COFFITO, COFEN e Demais)</h3>
+          <p style="font-size:0.92rem; line-height:1.6; color:var(--text);">
+            Os conselhos federais e regionais de fiscalização profissional (como COFFITO, COFEN, CFM, CFP, CFO e CFN) têm manifestado veementemente a posição técnica e ética de suas categorias, combatendo a precarização formativa e apoiando projetos de lei restritivos.
+          </p>
+          <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:var(--radius); padding:1rem; margin-top:1rem; font-size:0.88rem; color:#92400e; line-height:1.55;">
+            <strong>Esfera de Competência Jurídica:</strong> Os conselhos de classe representam e fiscalizam a conduta ética e o exercício profissional, mas a autorização, o credenciamento e a regulação de cursos superiores pertencem ao <strong>Sistema Federal de Ensino</strong> (MEC e CNE), observadas as diretrizes normativas da União.
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-limites" class="tab-panel" role="tabpanel" aria-labelledby="tab-limites">
+        <div class="panel" style="margin-bottom:1.5rem;">
+          <h3 style="margin-top:0; color:var(--accent-text);">Limites Pedagógicos Inegociáveis e Infraestrutura Obrigatória</h3>
+          <p style="font-size:0.92rem; line-height:1.6; color:var(--text);">
+            A formação em Saúde pressupõe densidade material e corpo docente com presença real. Os polos de apoio presencial não podem se restringir a salas de informática ou escritórios administrativos.
+          </p>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-top:1rem; font-size:0.88rem;">
+            <div style="padding:0.75rem; background:#f8fafc; border-radius:4px; border:1px solid var(--border);">
+              <strong>Ambientes Especializados:</strong> Laboratórios de anatomia, microscopia, habilidades cirúrgicas e centros de simulação clínica realística.
+            </div>
+            <div style="padding:0.75rem; background:#f8fafc; border-radius:4px; border:1px solid var(--border);">
+              <strong>Rede SUS Conveniada:</strong> Unidades Básicas de Saúde (UBS), ambulatórios e hospitais com preceptoria qualificada e formalmente pactuada.
+            </div>
+            <div style="padding:0.75rem; background:#f8fafc; border-radius:4px; border:1px solid var(--border);">
+              <strong>Acessibilidade &amp; Dados:</strong> Garantia plena de recursos para estudantes com deficiência e proteção rigorosa de dados de pacientes (LGPD).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela Filtrável de Cursos -->
+      <div style="margin-top: 2rem;">
+        <div class="table-tools">
+          <label for="table-search" style="font-weight:700; font-size:0.92rem; color:var(--text);">
+            Cursos de Graduação e Formatos Autorizados
+          </label>
+          <input type="text" id="table-search" class="search-input" placeholder="Buscar por curso ou formato..." onkeyup="filterCoursesTable()" aria-label="Filtrar cursos de saúde">
+        </div>
+
+        <div class="table-container">
+          <table class="courses-table" id="courses-table">
+            <thead>
+              <tr>
+                <th scope="col">Curso / Área</th>
+                <th scope="col">Classificação Regulatória</th>
+                <th scope="col">Modalidade Permitida</th>
+                <th scope="col">EaD Integral (100%)?</th>
+                <th scope="col">Carga Virtual Complementar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Medicina</strong></td>
+                <td>Saúde — Núcleo Essencial Regulado</td>
+                <td><span class="badge-presencial">Presencial Exclusivo</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Até 30% no PPC (recurso complementar)</td>
+              </tr>
+              <tr>
+                <td><strong>Enfermagem</strong></td>
+                <td>Saúde — Núcleo Essencial Regulado</td>
+                <td><span class="badge-presencial">Presencial Exclusivo</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Até 30% no PPC (recurso complementar)</td>
+              </tr>
+              <tr>
+                <td><strong>Odontologia</strong></td>
+                <td>Saúde — Núcleo Essencial Regulado</td>
+                <td><span class="badge-presencial">Presencial Exclusivo</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Até 30% no PPC (recurso complementar)</td>
+              </tr>
+              <tr>
+                <td><strong>Psicologia</strong></td>
+                <td>Saúde — Núcleo Essencial Regulado</td>
+                <td><span class="badge-presencial">Presencial Exclusivo</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Até 30% no PPC (recurso complementar)</td>
+              </tr>
+              <tr>
+                <td><strong>Fisioterapia</strong></td>
+                <td>Saúde e Bem-Estar</td>
+                <td><span class="badge-semipresencial">Presencial ou Semipresencial</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Semipresencial com percentuais mínimos de práticas</td>
+              </tr>
+              <tr>
+                <td><strong>Nutrição</strong></td>
+                <td>Saúde e Bem-Estar</td>
+                <td><span class="badge-semipresencial">Presencial ou Semipresencial</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Semipresencial com laboratórios presenciais</td>
+              </tr>
+              <tr>
+                <td><strong>Demais cursos de Saúde e Bem-Estar</strong> (Farmácia, Biomedicina, Fonoaudiologia, etc.)</td>
+                <td>Saúde e Bem-Estar</td>
+                <td><span class="badge-semipresencial">Presencial ou Semipresencial</span></td>
+                <td><span style="color:var(--danger); font-weight:700;">NÃO PERMITIDO</span></td>
+                <td>Observados percentuais regulamentares mínimos presenciais</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cards de Argumentos dos Conselhos (Expandir/Recolher) -->
+      <div style="margin-top:2.5rem;">
+        <h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.3rem;">
+          Principais Argumentos Técnicos dos Conselhos e do CNS
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0 0 1rem;">
+          Clique em cada argumento para compreender por que a formação prática presencial é insubstituível:
+        </p>
+
+        <div class="council-grid">
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Habilidades técnicas em ambientes supervisionados</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              Procedimentos invasivos, manobras de emergência, exame físico, punções e técnicas de reabilitação requerem memória muscular, treino repetitivo e correção imediata por preceptores presentes.
+            </div>
+          </div>
+
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Contato direto com usuários e comunidades</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              A empatia, a escuta ativa, o acolhimento da dor e a sensibilidade cultural dependem da presença humana compartilhada em territórios reais e periferias onde a vulnerabilidade social se manifesta.
+            </div>
+          </div>
+
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Comunicação profissional e relação terapêutica</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              A transmissão de más notícias, o suporte em luto, a leitura da linguagem não verbal e o vínculo de confiança entre paciente e profissional não são aprendidos com autenticidade através de telas isoladas.
+            </div>
+          </div>
+
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Integração teoria-prática e serviços de saúde</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              O SUS constitui campo prioritário de formação. O estudante precisa vivenciar as rotinas de enfermarias, unidades básicas, vigilância e redes de urgência durante toda a sua trajetória acadêmica.
+            </div>
+          </div>
+
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Trabalho interprofissional e em equipe</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              O cuidado integral exige tomada de decisão colegiada entre médicos, enfermeiros, fisioterapeutas, farmacêuticos e psicólogos, exercitada de forma colaborativa e dinâmica nos serviços.
+            </div>
+          </div>
+
+          <div class="arg-card" onclick="toggleArg(this)" tabindex="0" role="button" aria-expanded="false">
+            <div class="arg-summary">
+              <span>Responsabilidade ética e segurança do paciente</span>
+              <span class="arg-icon-toggle">+</span>
+            </div>
+            <div class="arg-body">
+              Erros práticos derivados de falhas formativas geram danos irreversíveis ou óbitos. A segurança do usuário é princípio bioético indelegável que impõe rigor presencial rigoroso.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO C — FLUXO DECISÓRIO -->
+    <section id="fluxo-decisorio" class="shell-section" style="padding-top: 2rem;">
+      <div class="section-header">
+        <span class="section-eyebrow">Layout C • Tomada de Decisão &amp; Simulador</span>
+        <h2 class="section-title">Fluxo Decisório Regulatório Passo a Passo</h2>
+        <p class="section-desc">
+          Navegue pelas etapas decisórias que definem a viabilidade de um curso de graduação na área da Saúde e explore o simulador de modalidades.
+        </p>
+      </div>
+
+      <!-- Stepper Interativo -->
+      <div class="stepper-nav" role="tablist" aria-label="Passos do fluxo decisório">
+        <button class="step-node active" id="btn-step-1" onclick="goToStep(1)">
+          <span class="step-node-num">1</span>
+          <span>Área da Saúde?</span>
+        </button>
+        <button class="step-node" id="btn-step-2" onclick="goToStep(2)">
+          <span class="step-node-num">2</span>
+          <span>Quarteto Presencial?</span>
+        </button>
+        <button class="step-node" id="btn-step-3" onclick="goToStep(3)">
+          <span class="step-node-num">3</span>
+          <span>Outro Curso de Saúde?</span>
+        </button>
+        <button class="step-node" id="btn-step-4" onclick="goToStep(4)">
+          <span class="step-node-num">4</span>
+          <span>EaD Integral (100%)?</span>
+        </button>
+      </div>
+
+      <!-- Step View Card -->
+      <div class="step-view" id="step-view-card">
+        <span class="step-tag-pill" id="step-pill">Etapa 1 de 4</span>
+        <h3 class="step-title" id="step-title-text">O curso pretendido pertence à área da Saúde?</h3>
+        <div class="step-content" id="step-desc-text">
+          Se o curso integra a área de Saúde e Bem-Estar humana, aplicam-se imediatamente os critérios de proteção do SUS, as DCN específicas e as restrições impostas pelo Decreto nº 12.456/2025. Cursos de outras áreas (humanas, exatas, tecnológicas) seguem regras gerais próprias.
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; border-top:1px solid #f1f5f9; padding-top:1rem;">
+          <button class="btn-secondary" id="btn-prev-step" onclick="prevStep()" disabled>← Anterior</button>
+          <div style="font-size:0.8rem; color:var(--text-muted);" id="step-indicator-text">Passo 1 de 4</div>
+          <button class="btn-copy" id="btn-next-step" onclick="nextStep()">Próxima Etapa →</button>
+        </div>
+      </div>
+
+      <!-- Nota de Alerta Jurídico sobre "Falso Presencial" -->
+      <div class="alert" style="background:#fffbeb; border:1px solid #fde68a; border-radius:var(--radius); padding:1.1rem; margin:1.8rem 0; font-size:0.88rem; color:#92400e; line-height:1.5;">
+        <strong>Nota Regulamentar Importante:</strong>
+        Um curso presencial não perde sua natureza ao incorporar ferramentas digitais auxiliares dentro do teto de 30%. Por outro lado, <strong>a realização de encontros presenciais eventuais ou esporádicos NÃO autoriza</strong> que uma IES anuncie ou comercialize como "presencial" um curso que opera estrutural e predominantemente a distância. Essa prática fere o Código de Defesa do Consumidor e as normas federais do MEC.
+      </div>
+
+      <!-- Cards das Atividades que Devem Ser Presenciais -->
+      <div style="margin-top:2.5rem;">
+        <h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.3rem;">
+          Atividades que Devem Ser Obrigatoriamente Presenciais
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0 0 1.2rem;">
+          Conheça as dimensões práticas da formação em saúde que não podem ser transpostas para ambientes remotos:
+        </p>
+
+        <div class="activities-grid">
+          <div class="act-card">
+            <span class="act-icon">🔬</span>
+            <div class="act-label">Práticas Laboratoriais</div>
+            <div class="act-desc">Microscopia, bioquímica, microbiologia, farmacotécnica e manuseio de reagentes químicos em condições controladas de biossegurança.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">🩺</span>
+            <div class="act-label">Atividades Clínicas Reais</div>
+            <div class="act-desc">Anamnese direta, exame físico céfalo-caudal, ausculta, palpação e acompanhamento de prontuários em ambulatórios e enfermarias.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">🤖</span>
+            <div class="act-label">Simulações de Procedimentos</div>
+            <div class="act-desc">Laboratórios de simulação realística com manequins de alta fidelidade para intubação, reanimação, partos e punções.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">👐</span>
+            <div class="act-label">Treinamento de Habilidades</div>
+            <div class="act-desc">Manipulação cinésio-funcional, curativos complexos, suturas, adaptação de próteses e instrumentação cirúrgica.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">🏥</span>
+            <div class="act-label">Estágios Curriculares</div>
+            <div class="act-desc">Inserção obrigatória na rotina de serviços de saúde públicos e privados sob supervisão presencial e docente contínua.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">👥</span>
+            <div class="act-label">Extensão Comunitária</div>
+            <div class="act-desc">Ações de promoção da saúde, imunização, visitas domiciliares na Estratégia Saúde da Família e educação popular.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">❤️</span>
+            <div class="act-label">Cuidado Direto a Pessoas</div>
+            <div class="act-desc">Acolhimento da vulnerabilidade física e psíquica, aplicação de testes psicométricos supervisionados e intervenção terapêutica.</div>
+          </div>
+          <div class="act-card">
+            <span class="act-icon">⚙️</span>
+            <div class="act-label">Equipamentos Especializados</div>
+            <div class="act-desc">Operação supervisionada de ultrassom, respiradores, eletroencefalografia, autoclaves e dispositivos de alta tecnologia hospitalar.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slider Comparativo Interativo (3 Estados) -->
+      <div class="slider-simulator">
+        <div class="slider-control-row">
+          <label for="format-slider" style="font-weight:700; font-size:0.95rem; color:var(--text);">
+            Simulador de Formatos: Arraste o seletor para comparar os 3 cenários
+          </label>
+          <input type="range" id="format-slider" class="slider-range" min="1" max="3" value="1" step="1" oninput="updateSliderState(this.value)" aria-label="Seletor de modalidade de ensino">
+          <div class="slider-steps-labels">
+            <span>1. Presencial</span>
+            <span>2. Semipresencial</span>
+            <span>3. EaD Integral</span>
+          </div>
+        </div>
+
+        <div id="slider-result" class="slider-result-box" style="background:#f0fdf4; border-color:#bbf7d0;">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="font-size:1.2rem;">🏛️</span>
+            <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#14532d;">Cenário 1: Formato Presencial (Padrão Ouro na Saúde)</h4>
+          </div>
+          <p style="margin:0 0 0.5rem; font-size:0.88rem; line-height:1.5; color:#166534;">
+            <strong>Exigido para Medicina, Enfermagem, Odontologia e Psicologia</strong>, e disponível para todas as demais graduações. Pode conter <strong>até 30% de carga horária a distância</strong> como recurso complementar e articulado ao PPC.
+          </p>
+          <span style="font-size:0.75rem; font-weight:700; background:#dcfce7; color:#15803d; padding:0.2rem 0.5rem; border-radius:4px;">STATUS: Totalmente autorizado e plenamente respaldado por todos os conselhos e MEC</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO RECOMENDAÇÕES (10 RECOMENDAÇÕES) -->
+    <section id="recomendacoes" class="shell-section" style="padding-top: 2rem;">
+      <div class="section-header">
+        <span class="section-eyebrow">Diretrizes Práticas • Guia para Estudantes e IES</span>
+        <h2 class="section-title">As 10 Recomendações Estruturantes</h2>
+        <p class="section-desc">
+          Síntese das recomendações essenciais para orientar estudantes na escolha do curso e auxiliar instituições de ensino superior a manter a conformidade legal e pedagógica.
+        </p>
+      </div>
+
+      <div class="recom-list" role="region" aria-label="Lista com 10 recomendações">
+        
+        <div class="recom-item active">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="true">
+            <span class="recom-num">1</span>
+            <span class="recom-title-text">Verificar classificação regulatória e formato autorizado da IES</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            Consulte sempre a base e-MEC oficial para checar o ato de autorização e reconhecimento do curso. Desconfie de propagandas comerciais que oferecem graduação em saúde como "100% online", pois carecem de respaldo legal no país.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">2</span>
+            <span class="recom-title-text">Observar integralmente as Diretrizes Curriculares Nacionais (DCN)</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            As DCN de cada profissão estabelecem o perfil do egresso, as competências humanísticas, técnicas e atitudinais, bem como a obrigatoriedade da integração com os sistemas de saúde desde os ciclos iniciais.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">3</span>
+            <span class="recom-title-text">Manter estritamente presenciais práticas, clínicas, laboratórios e estágios</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            Nenhuma tecnologia substitui a vivência física com instrumentos, reagentes e pacientes reais. O domínio psicomotor e relacional exige prática sob olhar direto e orientação docente in loco.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">4</span>
+            <span class="recom-title-text">Usar tecnologias e EaD como recurso complementar, nunca como substituição</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            Ferramentas digitais devem enriquecer o aprendizado (salas virtuais, quiz interativo, leitura de artigos científicos, videoaulas preparatórias em sala de aula invertida), mas nunca anular as horas de bancada e ambulatório.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">5</span>
+            <span class="recom-title-text">Explicitar no PPC a distribuição horária presencial, síncrona e assíncrona</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            O Projeto Pedagógico de Curso deve discriminar com rigor metodológico a carga horária em sala física, as aulas mediadas síncronas (com interação ao vivo) e os módulos virtuais assíncronos.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">6</span>
+            <span class="recom-title-text">Garantir campos de prática conveniados, supervisão e integração ao SUS</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            A IES precisa comprovar convênios formais vigentes com redes municipais, estaduais ou filantrópicas de saúde, assegurando proporção adequada de estudantes por preceptor em campos reais de assistência.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">7</span>
+            <span class="recom-title-text">Informar com transparência aos estudantes o formato efetivo da oferta</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            A divulgação prévia nos processos seletivos e no contrato de matrícula deve detalhar os dias, horários e locais exatos de presença obrigatória, prevenindo frustrações e litígios por propaganda enganosa.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">8</span>
+            <span class="recom-title-text">Assegurar acessibilidade e participação integral de estudantes com deficiência</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            Tanto os ambientes físicos (laboratórios e clínicas com bancadas adaptadas e rampas) quanto as plataformas digitais devem cumprir normas de acessibilidade (leitores de tela, legendas, Libras e tecnologia assistiva).
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">9</span>
+            <span class="recom-title-text">Avaliar competências práticas presencialmente e com rigor técnico</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            Testes objetivos de múltipla escolha online são insuficientes para mensurar aptidão clínica. A avaliação deve conter OSCE (Exame Clínico Objetivo Estruturado), avaliação de desempenho em serviço e verificação in loco.
+          </div>
+        </div>
+
+        <div class="recom-item">
+          <button class="recom-trigger" onclick="toggleRecom(this)" aria-expanded="false">
+            <span class="recom-num">10</span>
+            <span class="recom-title-text">Acompanhar continuamente atos legislativos, do MEC, CNE, CNS e Conselhos</span>
+            <span class="recom-icon">▼</span>
+          </button>
+          <div class="recom-content">
+            O cenário regulatório permanece dinâmico. Coordenadores e acadêmicos devem monitorar o desdobramento do PL 5.414/2016 e as portarias conjuntas dos ministérios para manter seus currículos sempre atualizados.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SEÇÃO CITAÇÃO -->
+    <section id="citacao" class="shell-section" style="padding-top: 2rem;">
+      <div class="section-header">
+        <span class="section-eyebrow">Referência Acadêmica &amp; Fontes</span>
+        <h2 class="section-title">Como Citar Este Material Didático</h2>
+        <p class="section-desc">
+          Utilize o padrão bibliográfico ABNT oficial para citar este infográfico educacional em seus artigos, trabalhos de conclusão de curso (TCC) ou relatórios de gestão.
+        </p>
+      </div>
+
+      <div class="citation-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <strong style="color:var(--text); font-size:0.95rem;">Referência segundo as normas da ABNT:</strong>
+          <button class="btn-copy" id="copy-btn" onclick="copyCitation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span id="copy-text">Copiar Citação</span>
+          </button>
+        </div>
+
+        <div id="citation-content" class="citation-text">SILVA, Andréa Soares Rocha da. Oferta de cursos de graduação na modalidade EaD na área da Saúde: posicionamento normativo e dos conselhos de área. [Infográfico interativo]. Fortaleza: Universidade Federal do Ceará, 2026. Disponível em: &lt;URL do infográfico&gt;. Acesso em: 12 set. 2026.</div>
+
+        <div class="sources-list">
+          <strong>Material didático elaborado com fundamentação técnica e jurídica em:</strong>
+          <ul style="margin:0.5rem 0 0 1.2rem; padding:0;">
+            <li>BRASIL. Presidência da República. <strong>Decreto nº 12.456, de 19 de maio de 2025</strong>. Reorganiza os formatos de oferta de cursos superiores e veda EaD integral na Saúde.</li>
+            <li>BRASIL. Ministério da Educação. <strong>Portaria MEC nº 378, de 19 de maio de 2025</strong>. Estabelece critérios regulatórios para cursos de Saúde e Bem-Estar e define cursos exclusivamente presenciais.</li>
+            <li>CONSELHO NACIONAL DE SAÚDE (CNS). <strong>Resolução nº 515, de 07 de outubro de 2016</strong>. Posiciona-se contra a graduação em saúde integralmente em EaD.</li>
+            <li>CONSELHO NACIONAL DE SAÚDE (CNS). <strong>Resolução nº 559, de 14 de setembro de 2017</strong>. Diretrizes Curriculares Nacionais orientadas ao SUS e à prática presencial interprofissional.</li>
+            <li>CONSELHO FEDERAL DE FISIOTERAPIA E TERAPIA OCUPACIONAL (COFFITO). Posicionamentos oficiais de 2020 em defesa da formação presencial.</li>
+            <li>CONSELHO NACIONAL DE SAÚDE (CNS). Documentos de acompanhamento regulatório, 2026.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-quote">
+        <strong>Nota Normativa Final:</strong> "O posicionamento normativo atual não permite a oferta de graduação da área da Saúde integralmente a distância. A recomendação mais segura é o uso complementar e pedagogicamente justificado das tecnologias digitais, sem substituir as experiências presenciais essenciais à formação profissional."
+      </div>
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem; font-size:0.84rem;">
+        <div>
+          <strong>Autoria e Concepção Pedagógica:</strong> Andréa Soares Rocha da Silva — Universidade Federal do Ceará (UFC)
+        </div>
+        <div>
+          Fortaleza, Ceará • Ano 2026 • Material Didático Aberto para a Graduação em Saúde
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // State management
+    const state = {
+      currentStep: 1,
+      totalSteps: 4
+    };
+
+    // Toggle Timeline details
+    function toggleNormCard(cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      const isExpanded = card.classList.contains('expanded');
+      
+      // Close other cards for clean accordion feel
+      document.querySelectorAll('.norm-card').forEach(c => {
+        c.classList.remove('expanded');
+        c.setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isExpanded) {
+        card.classList.add('expanded');
+        card.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Interactive Quiz / Verificador
+    function runQuizChecker() {
+      const courseType = document.getElementById('q-course-type').value;
+      const intent = document.getElementById('q-intent').value;
+      const feedbackEl = document.getElementById('quiz-feedback');
+
+      let icon = "⚠️";
+      let title = "";
+      let message = "";
+      let bg = "";
+      let color = "";
+      let border = "";
+
+      if (courseType === 'core4') {
+        // Medicina, Enfermagem, Odonto, Psicologia
+        if (intent === 'full-ead') {
+          icon = "🚫";
+          title = "TOTALMENTE PROIBIDO";
+          message = "Pela Portaria MEC nº 378/2025 e Decreto nº 12.456/2025, Medicina, Enfermagem, Odontologia e Psicologia são EXCLUSIVAMENTE PRESENCIAIS. Cursos 100% EaD nesses ramos são ilegais e não conferem diploma válido.";
+          bg = "#fef2f2"; color = "#991b1b"; border = "#fecaca";
+        } else if (intent === 'semipresencial') {
+          icon = "❌";
+          title = "NÃO PERMITIDO COMO SEMIPRESENCIAL";
+          message = "Estes quatro cursos foram classificados como de oferta exclusivamente presencial no marco de 2025. Eles não podem adotar a modalidade semipresencial.";
+          bg = "#fff1f2"; color = "#be123c"; border = "#fecdd3";
+        } else {
+          icon = "✅";
+          title = "PERMITIDO COM REGRAS CLARAS";
+          message = "Oferta presencial regular permitida. Pode conter até 30% de carga horária a distância com fundamentação pedagógica estrita descrita no PPC e em consonância com as DCN.";
+          bg = "#f0fdf4"; color = "#166534"; border = "#bbf7d0";
+        }
+      } else if (courseType === 'health-other') {
+        // Fisioterapia, Nutrição, Farmácia, etc.
+        if (intent === 'full-ead') {
+          icon = "🚫";
+          title = "TOTALMENTE PROIBIDO";
+          message = "Nenhum curso de graduação em Saúde e Bem-Estar pode ser ofertado integralmente a distância (100% EaD) no Brasil.";
+          bg = "#fef2f2"; color = "#991b1b"; border = "#fecaca";
+        } else if (intent === 'semipresencial') {
+          icon = "⚖️";
+          title = "PERMITIDO SOB FORTES CONDICIONANTES";
+          message = "Permitido como semipresencial, desde que comprove infraestrutura de laboratórios reais e atenda a todos os percentuais regulamentares mínimos de atividades presenciais e práticas supervisionadas.";
+          bg = "#f0fdfa"; color = "#0f766e"; border = "#99f6e4";
+        } else {
+          icon = "✅";
+          title = "PERMITIDO";
+          message = "Formato presencial regular com teto de até 30% de atividades complementares remotas integradas ao currículo.";
+          bg = "#f0fdf4"; color = "#166534"; border = "#bbf7d0";
+        }
+      } else {
+        // Cursos fora da saúde
+        if (intent === 'full-ead') {
+          icon = "ℹ️";
+          title = "REGULAÇÃO GERAL DE EaD";
+          message = "Cursos de outras áreas (fora da Saúde) podem ter autorização para oferta integral em EaD segundo os critérios gerais de credenciamento do MEC, respeitando suas DCN específicas.";
+          bg = "#eff6ff"; color = "#1e40af"; border = "#bfdbfe";
+        } else {
+          icon = "✅";
+          title = "FORMATO REGULAR";
+          message = "Permitido segundo a legislação educacional geral e projeto pedagógico institucional aprovado.";
+          bg = "#f8fafc"; color = "#334155"; border = "#cbd5e1";
+        }
+      }
+
+      feedbackEl.style.backgroundColor = bg;
+      feedbackEl.style.color = color;
+      feedbackEl.style.borderColor = border;
+      feedbackEl.innerHTML = `
+        <span style="font-size:1.4rem; line-height:1;">${icon}</span>
+        <div>
+          <strong style="display:block; margin-bottom:0.25rem;">${title}</strong>
+          ${message}
+        </div>
+      `;
+    }
+
+    // Tabs in Section B
+    function switchTab(tabKey) {
+      const tabs = ['marco', 'cns', 'conselhos', 'limites'];
+      tabs.forEach(key => {
+        const btn = document.getElementById('tab-' + key);
+        const panel = document.getElementById('panel-' + key);
+        if (key === tabKey) {
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          panel.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-selected', 'false');
+          panel.classList.remove('active');
+        }
+      });
+    }
+
+    // Filter courses table
+    function filterCoursesTable() {
+      const filter = document.getElementById('table-search').value.toLowerCase();
+      const rows = document.querySelectorAll('#courses-table tbody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      });
+    }
+
+    // Toggle argument card
+    function toggleArg(el) {
+      el.classList.toggle('open');
+      const expanded = el.classList.contains('open');
+      el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+
+    // Decision Stepper
+    const stepData = [
+      {
+        pill: "Etapa 1 de 4 • Triagem da Área",
+        title: "O curso pretendido pertence à área da Saúde?",
+        content: "Se o curso integra a área de Saúde e Bem-Estar humana (Medicina, Enfermagem, Odontologia, Farmácia, Fisioterapia, etc.), incidem imediatamente os preceitos de proteção à saúde coletiva e as regras do Decreto nº 12.456/2025. Se for de outra área de conhecimento (ex.: Engenharia, Letras), aplicam-se outros marcos específicos do MEC."
+      },
+      {
+        pill: "Etapa 2 de 4 • Núcleo Exclusivo Presencial",
+        title: "É Medicina, Enfermagem, Odontologia ou Psicologia?",
+        content: "SIM → Enquadramento no art. da Portaria MEC nº 378/2025: estes cursos são EXCLUSIVAMENTE PRESENCIAIS. É expressamente vedada sua oferta nas modalidades semipresencial ou a distância. Podem apenas usufruir de até 30% de carga a distância complementar dentro do curso presencial."
+      },
+      {
+        pill: "Etapa 3 de 4 • Demais Cursos de Saúde e Bem-Estar",
+        title: "É outro curso da Saúde (Fisioterapia, Nutrição, Fono, etc.)?",
+        content: "SIM → Formato PRESENCIAL ou SEMIPRESENCIAL. Para ser semipresencial, a IES precisa comprovar infraestrutura física real, polos com laboratórios de ciências básicas e clínicas, e assegurar percentuais mínimos de aulas síncronas mediadas e estágios presenciais nos serviços do SUS."
+      },
+      {
+        pill: "Etapa 4 de 4 • Verificação de EaD Integral",
+        title: "Existe possibilidade de graduação em Saúde 100% EaD?",
+        content: "NÃO. A oferta integralmente a distância está TERMINANTEMENTE VEDADA na área da Saúde no Brasil. Qualquer oferta comercializada como graduação em saúde totalmente online está em desacordo com as resoluções do CNS e a regulação do Ministério da Educação."
+      }
+    ];
+
+    function updateStepView() {
+      const idx = state.currentStep - 1;
+      const data = stepData[idx];
+      document.getElementById('step-pill').innerText = data.pill;
+      document.getElementById('step-title-text').innerText = data.title;
+      document.getElementById('step-desc-text').innerText = data.content;
+      document.getElementById('step-indicator-text').innerText = `Passo ${state.currentStep} de 4`;
+
+      document.querySelectorAll('.step-node').forEach((node, i) => {
+        if (i + 1 === state.currentStep) {
+          node.classList.add('active');
+        } else {
+          node.classList.remove('active');
+        }
+      });
+
+      document.getElementById('btn-prev-step').disabled = state.currentStep === 1;
+      document.getElementById('btn-next-step').disabled = state.currentStep === state.totalSteps;
+      document.getElementById('btn-next-step').innerText = state.currentStep === state.totalSteps ? "Concluído" : "Próxima Etapa →";
+    }
+
+    function goToStep(s) {
+      state.currentStep = s;
+      updateStepView();
+    }
+
+    function prevStep() {
+      if (state.currentStep > 1) {
+        state.currentStep--;
+        updateStepView();
+      }
+    }
+
+    function nextStep() {
+      if (state.currentStep < state.totalSteps) {
+        state.currentStep++;
+        updateStepView();
+      }
+    }
+
+    // Slider simulator
+    function updateSliderState(val) {
+      const box = document.getElementById('slider-result');
+      if (val === "1") {
+        box.style.background = "#f0fdf4";
+        box.style.borderColor = "#bbf7d0";
+        box.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="font-size:1.2rem;">🏛️</span>
+            <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#14532d;">Cenário 1: Formato Presencial (Padrão Ouro na Saúde)</h4>
+          </div>
+          <p style="margin:0 0 0.5rem; font-size:0.88rem; line-height:1.5; color:#166534;">
+            <strong>Exigido para Medicina, Enfermagem, Odontologia e Psicologia</strong>, e disponível para todas as demais graduações. Pode conter <strong>até 30% de carga horária a distância</strong> como recurso complementar e articulado ao PPC.
+          </p>
+          <span style="font-size:0.75rem; font-weight:700; background:#dcfce7; color:#15803d; padding:0.2rem 0.5rem; border-radius:4px;">STATUS: Totalmente autorizado e plenamente respaldado por todos os conselhos e MEC</span>
+        `;
+      } else if (val === "2") {
+        box.style.background = "#f0f9ff";
+        box.style.borderColor = "#bae6fd";
+        box.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="font-size:1.2rem;">⚖️</span>
+            <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#0369a1;">Cenário 2: Formato Semipresencial (Condicionado)</h4>
+          </div>
+          <p style="margin:0 0 0.5rem; font-size:0.88rem; line-height:1.5; color:#0c4a6e;">
+            Permitido <strong>apenas para determinados cursos de Saúde e Bem-Estar</strong> (ex.: Fisioterapia, Nutrição, Farmácia). Exige percentuais mínimos inegociáveis de atividades presenciais, laboratórios especializados no polo e estágios supervisionados no SUS. <strong>Proibido para Medicina, Enfermagem, Odonto e Psicologia.</strong>
+          </p>
+          <span style="font-size:0.75rem; font-weight:700; background:#e0f2fe; color:#0284c7; padding:0.2rem 0.5rem; border-radius:4px;">STATUS: Permitido com fiscalização rigorosa de infraestrutura prática</span>
+        `;
+      } else {
+        box.style.background = "#fef2f2";
+        box.style.borderColor = "#fecaca";
+        box.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="font-size:1.2rem;">🚫</span>
+            <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#991b1b;">Cenário 3: EaD Integral (100% a Distância)</h4>
+          </div>
+          <p style="margin:0 0 0.5rem; font-size:0.88rem; line-height:1.5; color:#7f1d1d;">
+            <strong>VEDADO PARA TODA A ÁREA DA SAÚDE.</strong> O Decreto nº 12.456/2025 e a Portaria MEC nº 378/2025 não autorizam a criação nem a oferta de graduações em saúde integralmente remotas. Resoluções do CNS (515/2016 e 559/2017) e conselhos profissionais rechaçam veementemente esse modelo.
+          </p>
+          <span style="font-size:0.75rem; font-weight:700; background:#fee2e2; color:#b91c1c; padding:0.2rem 0.5rem; border-radius:4px;">STATUS: Ilegal e não reconhecido para o exercício profissional</span>
+        `;
+      }
+    }
+
+    // Recommendations Accordion
+    function toggleRecom(btn) {
+      const item = btn.parentElement;
+      const isActive = item.classList.contains('active');
+      
+      // Close others
+      document.querySelectorAll('.recom-item').forEach(i => {
+        i.classList.remove('active');
+        i.querySelector('.recom-trigger').setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isActive) {
+        item.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Copy Citation to Clipboard
+    function copyCitation() {
+      const text = document.getElementById('citation-content').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const copyBtn = document.getElementById('copy-btn');
+        const copyText = document.getElementById('copy-text');
+        copyText.innerText = "Citação Copiada!";
+        copyBtn.style.background = "#15803d";
+        setTimeout(() => {
+          copyText.innerText = "Copiar Citação";
+          copyBtn.style.background = "var(--accent)";
+        }, 2500);
+      }).catch(err => {
+        alert("Não foi possível copiar automaticamente. Por favor, selecione e copie o texto manualmente.");
+      });
+    }
+
+    // Highlight active nav item on scroll
+    window.addEventListener('scroll', () => {
+      const sections = ['hero', 'jornada', 'painel-cursos', 'fluxo-decisorio', 'recomendacoes', 'citacao'];
+      let currentSec = 'jornada';
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140 && rect.bottom >= 140) {
+            currentSec = id;
+          }
+        }
+      });
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === '#' + currentSec) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    });
+
+    // Initialize Quiz & View on load
+    document.addEventListener('DOMContentLoaded', () => {
+      runQuizChecker();
+      updateStepView();
+    });
+  </script>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisFmt keeps axis tick labels short (compact notation) so long values
+  // (e.g. full BRL amounts) never clip against the plot edge.
+  function axisFmt(v) {
+    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
+  }
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  function coerceFormat(spec) {
+    if (typeof spec === "function") return spec;
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 12, plotH = H - padT - padB;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (v / max) * plotH);
+      var x = padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
+  function line(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 16, plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    var pts = cfg.values.map(function (v, i) {
+      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+      var y = padT + plotH - (v / max) * plotH;
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
+      c.appendChild(t);
+      svg.appendChild(c);
+      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
+    var a0 = -Math.PI / 2;
+    cfg.values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
+    center.textContent = fmt.num(total);
+    svg.appendChild(center);
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+})();
+
+</script>
+</body>
+</html>
